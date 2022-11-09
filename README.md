@@ -7,10 +7,19 @@
       |@@@@----@|@--@|    \__,_|_.__/ \__,_|\___|\__,_|___/\___/\____/ 
      ==================
 
-Simple 64-bit OS built with assembly code and C
+Simple 64-bit OS built with assembly code (and hopefully soon some C)
 
-I've provided a simple bochsrc for simple virtualization, just make sure to switch to your path where the boot.img will be built `ata0-master: type=disk, path="<SWITCH TO YOUR PATH>", mode=flat, cylinders=0, heads=16, spt=63, sect_size=512, model="Generic 1234", biosdetect=auto, translation=auto`
+## Prerequisites:
+Make sure that you have `gcc`, `nasm` and `qemu` installed
 
-Make sure that you have bochsrc installed, nasm and gcc and trigger a build with the build script
+## How to run
+In the project there are a make file with two scripts
 
-More info coming soon...
+To build the .img file run
+```
+make build 
+```
+To run a emulated environment using qemu
+```
+make run
+```
