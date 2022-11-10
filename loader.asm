@@ -66,20 +66,15 @@ SetVideoMode:
     mov ax,3
     int 0x10
     
-    mov si,Message
-    mov ax,0xb800
-    mov es,ax
-    xor di,di
-    mov cx,MessageLen
+    cli
+    lgdt [Gdt32Ptr]
+    lidt [Idt32Ptr]
 
-PrintMessage:
-    mov al,[si]
-    mov [es:di],al
-    mov byte[es:di+1],0xa
+    mov eax,cr0
+    or eax,1
+    mov cr0,eax
 
-    add di,2
-    add si,1
-    loop PrintMessage
+    jmp 8:PMEntry
 
 ReadError:
 NotSupported:
@@ -87,7 +82,46 @@ End:
     hlt
     jmp End
 
+[BITS 32]
+PMEntry:
+    mov ax,0x10
+    mov ds,ax
+    mov es,ax
+    mov ss,ax
+    mov esp,0x7c00
+    
+    mov byte[0xb8000],'P'
+    mov byte[0xb8001],0xa
+
+PEnd:
+    hlt
+    jmp PEnd
+
 DriveId:    db 0
-Message:    db "Text mode is set"
-MessageLen: equ $-Message
 ReadPacket: times 16 db 0
+
+Gdt32:
+    dq 0
+Code32:
+    dw 0xffff
+    dw 0
+    db 0
+    db 0x9a
+    db 0xcf
+    db 0
+Data32:
+    dw 0xffff
+    dw 0
+    db 0
+    db 0x92
+    db 0xcf
+    db 0
+
+Gdt32Len: equ $-Gdt32
+
+Gdt32Ptr: dw Gdt32Len-1
+          dd Gdt32
+
+Idt32Ptr: dw 0
+        dd 0
+
