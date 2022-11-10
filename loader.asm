@@ -2,6 +2,19 @@
 [ORG 0x7e00]
 
 start:
+    mov [DriveId],dl
+
+    mov eax,0x80000000
+    cpuid
+    cmp eax,0x80000001
+    jb NotSupported
+    mov eax,0x80000001
+    cpuid
+    test edx,(1<<29)
+    jz NotSupported
+    test edx,(1<<26)
+    js NotSupported
+
     mov ah,0x13
     mov al,1
     mov bx,0xa
@@ -9,10 +22,12 @@ start:
     mov bp,Message
     mov cx,MessageLen 
     int 0x10
-    
+
+NotSupported:
 End:
     hlt
     jmp End
 
-Message:    db "loader starts"
+DriveId:    db 0
+Message:    db "Long mode is supported"
 MessageLen: equ $-Message
