@@ -51,24 +51,35 @@ GetMemDone:
 TestA20:
     mov ax,0xffff
     mov es,ax
-    mov word[ds:0x7c00], 0xa200
-    cmp word[es:0x7c10], 0xa200
+    mov word[ds:0x7c00],0xa200
+    cmp word[es:0x7c10],0xa200
     jne SetA20LineDone
-    mov word[0x7c00], 0xb200
-    cmp word[es:0x7c10], 0xb200
+    mov word[0x7c00],0xb200
+    cmp word[es:0x7c10],0xb200
     je End
 
 SetA20LineDone:
-    xor ax, ax
-    mov es, ax
+    xor ax,ax
+    mov es,ax
 
-    mov ah,0x13
-    mov al,1
-    mov bx,0xa
-    xor dx,dx
-    mov bp,Message
-    mov cx,MessageLen 
+SetVideoMode:
+    mov ax,3
     int 0x10
+    
+    mov si,Message
+    mov ax,0xb800
+    mov es,ax
+    xor di,di
+    mov cx,MessageLen
+
+PrintMessage:
+    mov al,[si]
+    mov [es:di],al
+    mov byte[es:di+1],0xa
+
+    add di,2
+    add si,1
+    loop PrintMessage
 
 ReadError:
 NotSupported:
@@ -77,6 +88,6 @@ End:
     jmp End
 
 DriveId:    db 0
-Message:    db "A20 line is on"
+Message:    db "Text mode is set"
 MessageLen: equ $-Message
 ReadPacket: times 16 db 0
